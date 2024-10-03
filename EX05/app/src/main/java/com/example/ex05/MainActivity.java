@@ -50,11 +50,11 @@ public class MainActivity extends AppCompatActivity {
 
     // Phương thức chuyển đổi năm dương lịch sang năm âm lịch
     private String convertToAmLich(int duongLich) {
-        String[] can = {"Giáp", "Ất", "Bính", "Đinh", "Mậu", "Kỷ", "Canh", "Tân", "Nhâm", "Quý"};
-        String[] chi = {"Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"};
+        String[] can = {"Canh", "Tân", "Nhâm", "Quý","Giáp", "Ất", "Bính", "Đinh", "Mậu", "Kỷ"};
+        String[] chi = {"Thân", "Dậu", "Tuất", "Hợi","Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi"};
 
-        int canIndex = (duongLich - 3) % 10;
-        int chiIndex = (duongLich - 3) % 12;
+        int canIndex = duongLich  % 10;
+        int chiIndex = duongLich  % 12;
 
         return can[canIndex] + " " + chi[chiIndex];
 
