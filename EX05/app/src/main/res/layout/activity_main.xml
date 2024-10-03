@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FFFFFF"
+    android:gravity="center_horizontal">
+
+    <!-- Tiêu đề ứng dụng -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Chuyển đổi năm dương lịch"
+        android:textSize="18sp"
+        android:background="#4CAF50"
+        android:textColor="#FFFFFF"
+        android:padding="10dp"
+        android:gravity="center"
+        android:layout_marginBottom="20dp"/>
+
+    <!-- TextView Nhập năm dương lịch -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Năm dương lịch:"
+        android:textSize="16sp"
+        android:layout_marginBottom="10dp"/>
+
+    <!-- EditText để nhập năm dương lịch -->
+    <EditText
+        android:id="@+id/edtDuongLich"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nhập năm dương lịch"
+        android:inputType="number"
+        android:layout_marginBottom="20dp"/>
+
+    <!-- Nút chuyển đổi -->
+    <Button
+        android:id="@+id/btnChuyenDoi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Chuyển đổi"
+        android:layout_marginBottom="20dp"/>
+
+    <!-- TextView Nhập năm âm lịch -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Năm âm lịch:"
+        android:textSize="16sp"
+        android:layout_marginBottom="10dp"/>
+
+    <!-- TextView hiển thị kết quả năm âm lịch -->
+    <TextView
+        android:id="@+id/tvAmLich"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Kết quả năm âm lịch sẽ hiển thị ở đây"
+        android:background="#FFFF00"
+        android:textSize="18sp"
+        android:padding="10dp"
+        android:gravity="center"
+        android:textColor="#000000"/>
+
+</LinearLayout>
