@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Tìm kiếm sinh viên -->
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_search"
+        android:title="Search"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="ifRoom|collapseActionView" />
+
+    <!-- Sắp xếp từ A đến Z -->
+    <item
+        android:id="@+id/action_sort"
+        android:icon="@drawable/ic_sort"
+        android:title="Sort A-Z"
+        app:showAsAction="never" />
+
+    <!-- Thêm sinh viên mới -->
+    <item
+        android:id="@+id/action_add"
+        android:icon="@drawable/ic_add"
+        android:title="Add Student"
+        app:showAsAction="always" />
+
+    <!-- Chỉnh sửa thông tin sinh viên -->
+    <item
+        android:id="@+id/action_edit"
+        android:title="Edit Student"
+        app:showAsAction="never" />
+
+    <!-- Sắp xếp theo ID tăng dần -->
+    <item
+        android:id="@+id/action_sort_id_asc"
+        android:title="Sort ID Ascending"
+        app:showAsAction="never" />
+
+    <!-- Sắp xếp theo ID giảm dần -->
+    <item
+        android:id="@+id/action_sort_id_desc"
+        android:title="Sort ID Descending"
+        app:showAsAction="never" />
+
+    <!-- Sắp xếp theo GPA tăng dần -->
+    <item
+        android:id="@+id/action_sort_gpa_asc"
+        android:title="Sort GPA Ascending"
+        app:showAsAction="never" />
+
+    <!-- Sắp xếp theo GPA giảm dần -->
+    <item
+        android:id="@+id/action_sort_gpa_desc"
+        android:title="Sort GPA Descending"
+        app:showAsAction="never" />
+
+</menu>
