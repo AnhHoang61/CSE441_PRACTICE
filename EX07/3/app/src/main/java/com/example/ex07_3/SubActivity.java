@@ -8,13 +8,10 @@ import android.widget.EditText;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class SubActivity extends AppCompatActivity {
 
-    EditText edtAA,edtBB;
+    EditText edtAA, edtBB;
     Button btnsendtong, btnsendhieu;
     Intent myintent;
 
@@ -28,20 +25,24 @@ public class SubActivity extends AppCompatActivity {
         edtBB = findViewById(R.id.edtBB);
         btnsendtong = findViewById(R.id.btnsendtong);
         btnsendhieu = findViewById(R.id.btnsendhieu);
-        //Nhan intent
+
+        // Nhận intent
         myintent = getIntent();
-        //lay du lieu khoi Intent
-        int a = myintent.getIntExtra("soa",0);
-        int b = myintent.getIntExtra("sob",0);
-        edtAA.setText(a);
-        edtBB.setText(b);
+        // Lấy dữ liệu từ Intent
+        int a = myintent.getIntExtra("soa", 0);
+        int b = myintent.getIntExtra("sob", 0);
+
+        // Chuyển đổi giá trị nguyên thành chuỗi để gán cho EditText
+        edtAA.setText(String.valueOf(a));
+        edtBB.setText(String.valueOf(b));
+
         btnsendtong.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int sum = a+b;
+                int sum = a + b;
                 Intent intent = new Intent();
-                intent.putExtra("kq",sum);
-                setResult(33,intent);
+                intent.putExtra("kq", sum);
+                setResult(33, intent);
                 finish();
             }
         });
@@ -49,13 +50,18 @@ public class SubActivity extends AppCompatActivity {
         btnsendhieu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int sub = a-b;
+                int sub;
+                if (a >= b) {
+                    sub = a - b;  // Nếu a lớn hơn hoặc bằng b, thì lấy a trừ b
+                } else {
+                    sub = b - a;  // Nếu b lớn hơn a, thì lấy b trừ a
+                }
+
                 Intent intent = new Intent();
-                intent.putExtra("kq",sub);
-                setResult(34,intent);
+                intent.putExtra("kq", sub);
+                setResult(34, intent);
                 finish();
             }
         });
-
     }
 }
