@@ -1,11 +1,8 @@
 package com.example.sinhvien;
 
-import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,34 +10,30 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.ViewHolder> {
-
+public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentViewHolder> {
     private List<Student> studentList;
-    private Context context;
+    private OnItemClickListener listener;
 
-    public StudentAdapter(List<Student> studentList, Context context) {
+    public interface OnItemClickListener {
+        void onItemClick(Student student);
+    }
+
+    public StudentAdapter(List<Student> studentList, OnItemClickListener listener) {
         this.studentList = studentList;
-        this.context = context;
+        this.listener = listener;
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.student_item, parent, false);
-        return new ViewHolder(view);
+    public StudentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.student_item, parent, false);
+        return new StudentViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull StudentViewHolder holder, int position) {
         Student student = studentList.get(position);
-        holder.studentName.setText(student.fullName.first + " " + student.fullName.last);
-        holder.studentGPA.setText(String.valueOf(student.gpa));
-
-        holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, StudentDetailActivity.class);
-            intent.putExtra("student", (CharSequence) student);
-            context.startActivity(intent);
-        });
+        holder.bind(student, listener);
     }
 
     @Override
@@ -48,21 +41,28 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.ViewHold
         return studentList.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView studentName, studentGPA;
-        ImageView studentAvatar;
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            studentName = itemView.findViewById(R.id.studentName);
-            studentGPA = itemView.findViewById(R.id.studentGPA);
-            studentAvatar = itemView.findViewById(R.id.studentAvatar);
-        }
-    }
-
-    public void filterList(List<Student> filteredList) {
-        this.studentList = filteredList;
+    public void updateList(List<Student> newList) {
+        studentList = newList;
         notifyDataSetChanged();
     }
 
+    public static class StudentViewHolder extends RecyclerView.ViewHolder {
+        TextView textViewId, textViewName, textViewGpa;
+
+        public StudentViewHolder(@NonNull View itemView) {
+            super(itemView);
+            textViewId = itemView.findViewById(R.id.studentID);
+            textViewName = itemView.findViewById(R.id.studentName);
+            textViewGpa = itemView.findViewById(R.id.studentGPA);
+        }
+
+        public void bind(final Student student, final OnItemClickListener listener) {
+            textViewId.setText(student.getId());
+            // Sử dụng phương thức getFullName() để lấy họ và tên
+            textViewName.setText(student.getFullName().getLast() + " " + student.getFullName().getFirst());
+            textViewGpa.setText(String.valueOf(student.getGpa()));
+
+            itemView.setOnClickListener(v -> listener.onItemClick(student));
+        }
+    }
 }

@@ -1,33 +1,39 @@
 package com.example.sinhvien;
 
+import static com.example.sinhvien.R.*;
+
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.SearchView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
+
+
 
 public class MainActivity extends AppCompatActivity {
 
-    RecyclerView recyclerView;
-    StudentAdapter studentAdapter;
-    List<Student> studentList;
+    private RecyclerView recyclerView;
+    private StudentAdapter adapter;
+    private List<Student> studentList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,32 +43,67 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Tải dữ liệu từ JSON
-        studentList = loadStudentsFromJson();
-        studentAdapter = new StudentAdapter(studentList, this);
-        recyclerView.setAdapter(studentAdapter);
+        // Load data từ file JSON
+        loadStudentData();
+
+        adapter = new StudentAdapter(studentList, student -> {
+            // Chuyển sang màn hình chi tiết
+            Intent intent = new Intent(MainActivity.this, StudentDetailActivity.class);
+            intent.putExtra("student", (CharSequence) student); // Đảm bảo truyền đúng kiểu dữ liệu
+            startActivity(intent);
+        });
+
+        recyclerView.setAdapter(adapter);
+
+        FloatingActionButton fabAddStudent = findViewById(R.id.fab_add_student);
+        fabAddStudent.setOnClickListener(v -> {
+            // Xử lý thêm sinh viên mới
+            Toast.makeText(this, "Thêm sinh viên mới", Toast.LENGTH_SHORT).show();
+        });
     }
 
-    // Tạo menu (tìm kiếm, sắp xếp)
+    private void loadStudentData() {
+        try {
+            InputStream inputStream = getAssets().open("students.json");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            StringBuilder jsonBuilder = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonBuilder.append(line);
+            }
+
+            String jsonString = jsonBuilder.toString();
+            Gson gson = new Gson();
+            Student[] students = gson.fromJson(jsonString, Student[].class);
+            studentList = new ArrayList<>(Arrays.asList(students));
+        } catch (IOException e) {
+            e.printStackTrace();
+            studentList = new ArrayList<>(); // Khởi tạo danh sách rỗng nếu có lỗi
+        }
+    }
+
+    // Nạp menu vào taskbar
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
 
-        // Tìm kiếm sinh viên
+        // Tìm kiếm
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) searchItem.getActionView();
-        searchView.setQueryHint("Search Student");
 
+        // Xử lý sự kiện tìm kiếm
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                filter(query);
+                // Xử lý tìm kiếm khi nhấn Enter
+                searchStudents(query);
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                filter(newText);
+                // Xử lý tìm kiếm khi nhập văn bản
+                searchStudents(newText);
                 return false;
             }
         });
@@ -70,153 +111,51 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    // Xử lý khi người dùng chọn item menu
+    // Xử lý khi chọn item trong menu
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
+        switch (item.getItemId()) {
+            case R.id.action_sort:
+                // Sắp xếp danh sách sinh viên từ A-Z
+                sortStudentListAZ();
+                return true;
 
-        try {
-            switch (id) {
-                case R.id.action_edit:
-                    // Mở Activity để chỉnh sửa thông tin sinh viên
-                    Intent editIntent = new Intent(MainActivity.this, EditStudentActivity.class);
-                    startActivity(editIntent);
-                    return true;
+            case R.id.action_option_1:
+                // Xử lý tùy chọn 1 nếu cần
+                return true;
 
-                case R.id.action_sort_id_asc:
-                    // Sắp xếp theo ID tăng dần
-                    sortStudentsByIdAsc();
-                    return true;
+            case R.id.action_option_2:
+                // Xử lý tùy chọn 2 nếu cần
+                return true;
 
-                case R.id.action_sort_id_desc:
-                    // Sắp xếp theo ID giảm dần
-                    sortStudentsByIdDesc();
-                    return true;
+            case R.id.action_option_3:
+                // Xử lý tùy chọn 3 nếu cần
+                return true;
 
-                case R.id.action_sort_gpa_asc:
-                    // Sắp xếp theo GPA tăng dần
-                    sortStudentsByGpaAsc();
-                    return true;
-
-                case R.id.action_sort_gpa_desc:
-                    // Sắp xếp theo GPA giảm dần
-                    sortStudentsByGpaDesc();
-                    return true;
-
-                // Các mã khác...
-                default:
-                    return super.onOptionsItemSelected(item);
-            }
-        } catch (Exception e) {
-            // Xử lý lỗi
-            e.printStackTrace();
-            Toast.makeText(this, "Đã xảy ra lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            return false;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
-
-
-    // Lọc danh sách sinh viên theo tên
-    private void filter(String text) {
+    // Hàm tìm kiếm sinh viên
+    private void searchStudents(String query) {
         List<Student> filteredList = new ArrayList<>();
         for (Student student : studentList) {
-            if (student.fullName.first.toLowerCase().contains(text.toLowerCase()) ||
-                    student.fullName.last.toLowerCase().contains(text.toLowerCase())) {
+            String fullName = student.getFullName().getLast() + " " + student.getFullName().getFirst();
+            if (fullName.toLowerCase().contains(query.toLowerCase()) ||
+                    student.getId().toLowerCase().contains(query.toLowerCase())) {
                 filteredList.add(student);
             }
         }
-        studentAdapter.filterList(filteredList);
+        adapter.updateList(filteredList);
     }
 
-    // Sắp xếp danh sách sinh viên theo tên từ A-Z
-    private void sortStudents() {
-        Collections.sort(studentList, new Comparator<Student>() {
-            @Override
-            public int compare(Student s1, Student s2) {
-                return s1.fullName.first.compareToIgnoreCase(s2.fullName.first);
-            }
-        });
-        studentAdapter.notifyDataSetChanged();
-    }
-
-    private void sortStudentsByIdAsc() {
-        Collections.sort(studentList, new Comparator<Student>() {
-            @Override
-            public int compare(Student s1, Student s2) {
-                return s1.id.compareTo(s2.id);
-            }
-        });
-        studentAdapter.notifyDataSetChanged();
-    }
-
-    private void sortStudentsByIdDesc() {
-        Collections.sort(studentList, new Comparator<Student>() {
-            @Override
-            public int compare(Student s1, Student s2) {
-                return s2.id.compareTo(s1.id);
-            }
-        });
-        studentAdapter.notifyDataSetChanged();
-    }
-
-    private void sortStudentsByGpaAsc() {
-        Collections.sort(studentList, new Comparator<Student>() {
-            @Override
-            public int compare(Student s1, Student s2) {
-                return Double.compare(s1.gpa, s2.gpa);
-            }
-        });
-        studentAdapter.notifyDataSetChanged();
-    }
-
-    private void sortStudentsByGpaDesc() {
-        Collections.sort(studentList, new Comparator<Student>() {
-            @Override
-            public int compare(Student s1, Student s2) {
-                return Double.compare(s2.gpa, s1.gpa);
-            }
-        });
-        studentAdapter.notifyDataSetChanged();
-    }
-
-
-    // Tải dữ liệu sinh viên từ file JSON
-    private List<Student> loadStudentsFromJson() {
-        List<Student> students = new ArrayList<>();
-        try {
-            InputStream is = getAssets().open("students.json");
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-
-            String json = new String(buffer, "UTF-8");
-            JSONArray jsonArray = new JSONArray(json);
-
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-
-                String id = jsonObject.getString("id");
-                JSONObject fullNameObject = jsonObject.getJSONObject("full_name");
-                Student.FullName fullName = new Student.FullName(
-                        fullNameObject.getString("first"),
-                        fullNameObject.getString("last"),
-                        fullNameObject.getString("midd"));
-
-                String gender = jsonObject.getString("gender");
-                String birthDate = jsonObject.getString("birth_date");
-                String email = jsonObject.getString("email");
-                String address = jsonObject.getString("address");
-                String major = jsonObject.getString("major");
-                double gpa = jsonObject.getDouble("gpa");
-                int year = jsonObject.getInt("year");
-
-                students.add(new Student(id, fullName, gender, birthDate, email, address, major, gpa, year));
-            }
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-        }
-        return students;
+    // Hàm sắp xếp danh sách từ A-Z
+    private void sortStudentListAZ() {
+        Collections.sort(studentList, (s1, s2) ->
+                s1.getFullName().getLast().compareToIgnoreCase(s2.getFullName().getLast())
+        );
+        adapter.notifyDataSetChanged(); // Thông báo cho adapter biết rằng danh sách đã thay đổi
     }
 }
